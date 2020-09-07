@@ -1,4 +1,4 @@
-name := "project-scala"
+name := "file-processing"
 
 version := "0.1"
 
