@@ -2,6 +2,12 @@ package com.romanidze.sparky.classes
 
 import tethys.{JsonReader, JsonWriter}
 
+/**
+ * Case Class for histogramm representation
+ * @param histFilm histogram for input film
+ * @param histAll histogram for all films
+ * @author Andrey Romanov
+ */
 case class RecordCalculation(histFilm: Seq[Int], histAll: Seq[Int])
 
 object RecordCalculation{

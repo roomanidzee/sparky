@@ -2,6 +2,11 @@ package com.romanidze.sparky.processing
 
 import com.romanidze.sparky.classes.Record
 
+/**
+ * Main record calculation
+ *
+ * @author Andrey Romanov
+ */
 object DataCalculation {
 
   def calculateRatings(input: List[Record]): Seq[Int] = {

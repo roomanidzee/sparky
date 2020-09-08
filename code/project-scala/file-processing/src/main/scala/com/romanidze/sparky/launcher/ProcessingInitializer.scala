@@ -7,6 +7,10 @@ import com.romanidze.sparky.classes.{Record, RecordCalculation}
 import com.romanidze.sparky.cli.CLIConfig
 import com.romanidze.sparky.processing.{DataCalculation, DataLoader}
 
+/**
+ * Initialization for all parameters
+ * @author Andrey Romanov
+ */
 object ProcessingInitializer {
 
   def processInput(input: CLIConfig): Unit = {

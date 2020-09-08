@@ -5,6 +5,11 @@ import tethys.jackson._
 import better.files.{File => ScalaFile}
 import com.romanidze.sparky.classes.{Record, RecordCalculation}
 
+/**
+ * File I/O
+ *
+ * @author Andrey Romanov
+ */
 object DataLoader {
 
   def processString(input: String): Record = {
