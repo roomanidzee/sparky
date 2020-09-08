@@ -3,6 +3,14 @@ import sbt._
 
 object Dependencies {
 
+  private val scalaTest: Seq[ModuleID] = Seq(
+    "org.scalatest" %% "scalatest" % Versions.scalaTest,
+    "org.scalactic" %% "scalactic" % Versions.scalaTest
+  ).map(_ % Test)
+
+  private val flexmark: Seq[ModuleID] =
+    Seq("com.vladsch.flexmark" % "flexmark-all" % Versions.flexMark).map(_ % Test)
+
   private val betterFiles: Seq[ModuleID] = Seq(
     "com.github.pathikrit" %% "better-files" % Versions.betterFiles
   )
@@ -11,11 +19,12 @@ object Dependencies {
     "org.rogach" %% "scallop" % Versions.scallop
   )
 
-  private val specs2: Seq[ModuleID]= Seq(
-    "org.specs2" %% "specs2-core" % Versions.specs2 % Test
+  private val tethys: Seq[ModuleID] = Seq(
+    "com.tethys-json" %% "tethys-core" % Versions.tethys,
+    "com.tethys-json" %% "tethys-jackson" % Versions.tethys
   )
 
-  val mainDeps: Seq[ModuleID] = betterFiles.union(scallop)
-  val testDeps: Seq[ModuleID] = specs2
+  val mainDeps: Seq[ModuleID] = betterFiles.union(scallop).union(tethys)
+  val testDeps: Seq[ModuleID] = scalaTest.union(flexmark)
 
 }
