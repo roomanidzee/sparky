@@ -16,11 +16,20 @@ object DataLoader {
     val regexPattern = "(?:www\\.)?(.*)".r
 
     val uid: String = splitResult(0)
-    val rawURL: String = URLDecoder.decode(splitResult(2), "UTF-8")
+    val sourceURL = splitResult(2)
 
-    val undecodedURL: String = (regexPattern findFirstIn new URL(rawURL).getHost).get.replace("www.", "")
+    if(sourceURL.startsWith("http") || sourceURL.startsWith("https")){
+      val rawURL: String = URLDecoder.decode(splitResult(2), "UTF-8")
+      val decodedURL: String = new URL(rawURL).getHost
 
-    Record(uid, IDN.toASCII(undecodedURL))
+      val finalURL: String = regexPattern.findFirstIn(decodedURL)
+                                         .get
+                                         .replace("www.", "")
+
+      Record(uid, IDN.toASCII(finalURL))
+    }else{
+      Record(uid, "-")
+    }
 
   }
 
