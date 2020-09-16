@@ -1,0 +1,11 @@
+123	1354546464.210	http%3A%2F%2Fwww.cars.ru%2Fsample-page-1
+123	1354546464.211	http%3A%2F%2Fauto.ru%2Fsample-page-2
+123	8452135545.123	http%3A%2F%2Fya.ru%2Fsample-page-1
+456	1234564654.231	http%3A%2F%2Fwww.ya.ru%2Fsample-page-1
+456	8452135545.123	http%3A%2F%2Fauto.ru%2Fsample-page-1
+456	4568797889.549	http%3A%2F%2Fya.ru%2Fstart
+456	4568797889.549	http%3A%2F%2Fmarket.ya.ru%2Fstart
+789	1234564654.231	http%3A%2F%2Fwww.auto.ru%2Fsample-page-1
+789	1354546464.211	http%3A%2F%2Fwww.cars.ru%2Fsample-page-2
+789	4568797889.549	http%3A%2F%2Fya.ru%2Fstart
+790	4568797889.549	http%3A%2F%2Fпддонлайнэкзамен.рф%2F
