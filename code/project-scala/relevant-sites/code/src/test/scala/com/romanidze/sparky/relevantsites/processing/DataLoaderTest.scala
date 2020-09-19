@@ -30,13 +30,19 @@ class DataLoaderTest extends AnyFlatSpec with Matchers{
       Record("789", "auto.ru"),
       Record("789", "cars.ru"),
       Record("789", "ya.ru"),
-      Record("790", "xn--80aakahknigpedfdm6u.xn--p1ai")
+      Record("790", "пддонлайнэкзамен.рф"),
+      Record("791", "xn--80aakahknigpedfdm6u.xn--p1ai"),
+      Record("792", "en.www.auto.com"),
+      Record("793", "-"), //нет http или https
+      Record("794", "-") //нет http или https
     )
 
     val fileOutput: Vector[Record] = sourceIterator.map(elem => DataLoader.processRecord(elem))
                                                    .toVector
 
-    fileOutput shouldBe expectedOutput
+    fileOutput zip expectedOutput foreach(elem => {
+      elem._1 shouldBe elem._2
+    })
 
     source.close()
 
