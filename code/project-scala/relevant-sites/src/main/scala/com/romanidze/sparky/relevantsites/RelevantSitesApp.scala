@@ -100,11 +100,9 @@ object RelevantSitesApp {
     ).orderBy(desc("relevance"), col("url"))
 
     resultDF.repartition(1)
-            .write
-            .format("csv")
-            .option("header", "true")
-            .option("sep", "\t")
-            .save("file:///home/andrey.romanov/laba02_domains.txt")
+            .rdd
+            .map(_.mkString("\t"))
+            .saveAsTextFile("file:///home/andrey.romanov/laba02_domains.txt")
 
     spark.stop()
 
