@@ -19,3 +19,6 @@ testOptions in Test ++= Seq(
   Tests.Argument(TestFrameworks.ScalaTest, "-oT"),
   Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/test-reports")
 )
+
+mainClass in assembly := Some("com.romanidze.sparky.relevantsites.RelevantSitesApp")
+assemblyJarName in assembly := "relevant-sites.jar"
