@@ -100,9 +100,11 @@ object RelevantSitesApp {
     ).orderBy(desc("relevance"), col("url"))
 
     resultDF.repartition(1)
-            .rdd
-            .map(_.mkString("\t"))
-            .saveAsTextFile("file:///home/andrey.romanov/laba02_domains.txt")
+            .write
+            .format("com.databricks.spark.csv")
+            .option("header", "true")
+            .option("delimiter", "\t")
+            .save("domains")
 
     spark.stop()
 

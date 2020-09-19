@@ -22,7 +22,7 @@ object DataLoader {
     val sourceURL: String = Try(URLDecoder.decode(rawURL, "UTF-8")).getOrElse("-")
 
     if(sourceURL.startsWith("http") || sourceURL.startsWith("https")){
-      val decodedURL: String = new URL(sourceURL).getHost
+      val decodedURL: String = new URL(URLDecoder.decode(splitResult(2), "UTF-8")).getHost
 
       val host: String = regexPattern.findFirstIn(decodedURL)
                                      .get
