@@ -39,7 +39,7 @@ object RelevantSitesApp {
 
     val recordBinaryDF: DataFrame = spark.sql(
       """
-        |SELECT url
+        |SELECT url, autos.uid
         |FROM record_data records
         |LEFT JOIN auto_df autos ON (records.uid=autos.uid)
         |""".stripMargin
@@ -65,7 +65,7 @@ object RelevantSitesApp {
                                              .agg(
                                                count(
                                                  when(
-                                                   col("auto_flag"), 1
+                                                   $"auto_flag" === 1, true
                                                  )
                                                ).alias("url_auto_count")
                                              )
@@ -78,7 +78,7 @@ object RelevantSitesApp {
     val autoCount: Long = recordBinaryDF.agg(
       count(
         when(
-           col("auto_flag"), 1
+          $"auto_flag" === 1, true
         )
       ).alias("domain_count")
     ).collect()(0).getLong(0)
