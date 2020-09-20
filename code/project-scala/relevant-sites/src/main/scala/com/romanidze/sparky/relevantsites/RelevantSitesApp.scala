@@ -50,13 +50,18 @@ object RelevantSitesApp {
 
     recordBinaryDF.show(15)
 
-    val dfSize: Long = recordBinaryDF.count()
+
 
     val calcRelevance: UserDefinedFunction = udf { (urlAutoCount: Long, urlCount: Long, autoCount: Long, domainCount: Long) => {
 
-        val numerator: Double = ( (urlAutoCount / domainCount) * (urlAutoCount / domainCount) ).toDouble
+        val castedUrlAutoCount: Double = urlAutoCount.toDouble
+        val castedUrlCount: Double = urlCount.toDouble
+        val castedAutoCount: Double = autoCount.toDouble
+        val castedDomainCount: Double = domainCount.toDouble
 
-        val denominator: Double = ( (urlCount / domainCount) * (autoCount / domainCount)).toDouble
+        val numerator: Double = ( (castedUrlAutoCount / castedDomainCount) * (castedUrlAutoCount / castedDomainCount) )
+
+        val denominator: Double = ( (castedUrlCount / castedDomainCount) * (castedAutoCount / castedDomainCount))
 
         numerator / denominator
 
@@ -73,41 +78,62 @@ object RelevantSitesApp {
                                                ).alias("url_auto_count")
                                              )
 
+    urlAutoDF.show(15)
+
     val urlCount: DataFrame = recordBinaryDF.groupBy(col("url"))
                                             .agg(
                                               count(col("url")).alias("url_count")
                                             )
 
-    val autoCount: Long = recordBinaryDF.agg(
+    urlCount.show(15)
+
+    val autoCount: DataFrame = recordBinaryDF.agg(
       count(
         when(
           $"auto_flag" === 1, true
         )
       ).alias("domain_count")
-    ).collect()(0).getLong(0)
+    )
+    autoCount.show()
+
 
     val calcDF: DataFrame = urlAutoDF.join(urlCount, Seq("url"), "inner")
+                                     .filter($"url_auto_count" =!= 0)
 
-    val joinedDF: DataFrame = recordBinaryDF.join(calcDF, Seq("url"), "inner")
+    calcDF.show(15)
+
+    calcDF.createOrReplaceTempView("calc_df")
+
+    val joinedDF: DataFrame = spark.sql(
+      """
+        |SELECT calc_data.url AS url, url_auto_count, url_count
+        |FROM calc_df calc_data
+        |LEFT JOIN record_data records ON (calc_data.url=records.url)
+        |""".stripMargin
+    ).na.drop("all")
+        .distinct()
+        .withColumn("autoCount", lit(autoCount.collect()(0).getLong(0)))
+        .withColumn("domainCount", lit(recordBinaryDF.count()))
+
+    joinedDF.show(15)
 
     val resultDF: DataFrame = joinedDF.select(
       col("url"),
-      round(
-        calcRelevance(
-          col("url_auto_count"),
-          col("url_count"),
-          lit(autoCount),
-          lit(dfSize)
-        ), 20
+      calcRelevance(
+        col("url_auto_count"),
+        col("url_count"),
+        col("autoCount"),
+        col("domainCount")
       ).alias("relevance")
     ).orderBy(desc("relevance"), col("url"))
 
-    resultDF.limit(200).repartition(1)
-            .write
-            .format("com.databricks.spark.csv")
-            .option("header", "true")
-            .option("delimiter", "\t")
-            .save("domains")
+    resultDF.show(15)
+
+    resultDF.limit(200)
+            .repartition(1)
+            .rdd
+            .map(_.mkString("\t"))
+            .saveAsTextFile("domains")
 
     spark.stop()
 
