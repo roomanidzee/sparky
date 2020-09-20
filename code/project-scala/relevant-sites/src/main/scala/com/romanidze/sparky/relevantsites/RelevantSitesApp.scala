@@ -18,22 +18,23 @@ object RelevantSitesApp {
 
     val sc: SparkContext = spark.sparkContext
 
-    val uidCond: Record => Boolean = (elem: Record) => elem.uid.equals("-") || elem.uid.isEmpty
-    val urlCond: Record => Boolean = (elem: Record) => elem.url.equals("-") || elem.url.isEmpty
-
     import spark.implicits._
 
     val rawAutos: DataFrame = spark.read.json("/labs/laba02/autousers.json")
     val autoDF: DataFrame = rawAutos.select(explode(rawAutos("autousers")))
                                     .toDF("uid")
 
+    autoDF.show(15)
+
     autoDF.createOrReplaceTempView("auto_df")
 
     val rawData: RDD[Record] = sc.textFile("/labs/laba02/logs")
                                  .map(elem => DataLoader.processRecord(elem))
-                                 .filter(elem => !( uidCond.apply(elem) || urlCond.apply(elem) ) )
+                                 .filter(elem => !elem.uid.equals(0L) && !elem.url.equals("-"))
 
     val recordDFData: DataFrame = rawData.toDF()
+
+    recordDFData.show(15)
 
     recordDFData.createOrReplaceTempView("record_data")
 
@@ -46,6 +47,8 @@ object RelevantSitesApp {
     )
       .withColumn("auto_flag", when(col("autos.uid").isNull, 0).otherwise(1))
       .drop(col("autos.uid"))
+
+    recordBinaryDF.show(15)
 
     val dfSize: Long = recordBinaryDF.count()
 
@@ -99,7 +102,7 @@ object RelevantSitesApp {
       ).alias("relevance")
     ).orderBy(desc("relevance"), col("url"))
 
-    resultDF.repartition(1)
+    resultDF.limit(200).repartition(1)
             .write
             .format("com.databricks.spark.csv")
             .option("header", "true")

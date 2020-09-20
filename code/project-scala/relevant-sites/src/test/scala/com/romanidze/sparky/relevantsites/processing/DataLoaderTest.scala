@@ -20,22 +20,27 @@ class DataLoaderTest extends AnyFlatSpec with Matchers{
     val sourceIterator: Iterator[String] = source.getLines()
 
     val expectedOutput = Vector(
-      Record("123", "cars.ru"),
-      Record("123", "auto.ru"),
-      Record("123", "ya.ru"),
-      Record("456", "ya.ru"),
-      Record("456", "auto.ru"),
-      Record("456", "ya.ru"),
-      Record("456", "market.ya.ru"),
-      Record("789", "auto.ru"),
-      Record("789", "cars.ru"),
-      Record("789", "ya.ru"),
-      Record("790", "пддонлайнэкзамен.рф"),
-      Record("791", "xn--80aakahknigpedfdm6u.xn--p1ai"),
-      Record("792", "en.www.auto.com"),
-      Record("793", "-"), //нет http или https
-      Record("794", "-"), //нет http или https
-      Record("795", "smotri.com")
+      Record(298563565220L, "smotri.com"),
+      Record(298563565220L, "smotri.com"),
+      Record(119952932415L, "echo.msk.ru"),
+      Record(119952932415L, "echo.msk.ru"),
+      Record(300632579775L, "russianfood.com"),
+      Record(300632579775L, "russianfood.com"),
+      Record(296539911524L, "sp.krasmama.ru"),
+      Record(296539911524L, "sp.krasmama.ru"),
+      Record(271793150671L, "forum.omskmama.ru"),
+      Record(0L, "-"),
+      Record(274060379972L, "vk.com"),
+      Record(0L, "-"),
+      Record(296539911524L, "sp.krasmama.ru"),
+      Record(296539911524L, "sp.krasmama.ru"),
+      Record(300762654387L, "zakon.kz"),
+      Record(0L, "-"),
+      Record(213567473327L, "zakon.kz"),
+      Record(0L, "-"),
+      Record(317095591614L, "web-ip.ru"),
+      Record(317095591614L, "web-ip.ru"),
+      Record(317095591614L, "пддонлайнэкзамен.рф")
     )
 
     val fileOutput: Vector[Record] = sourceIterator.map(elem => DataLoader.processRecord(elem))

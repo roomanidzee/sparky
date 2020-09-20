@@ -21,19 +21,21 @@ object DataLoader {
     val rawURL : String = Try(splitResult(2)).getOrElse("-")
     val sourceURL: String = Try(URLDecoder.decode(rawURL, "UTF-8")).getOrElse("-")
 
-    if(sourceURL.startsWith("http") || sourceURL.startsWith("https")){
-      val decodedURL: String = new URL(URLDecoder.decode(splitResult(2), "UTF-8")).getHost
+    val cond: String => Boolean = (elem: String) => elem.equals("-") || elem.isEmpty
 
-      val host: String = regexPattern.findFirstIn(decodedURL)
+    if( ( sourceURL.startsWith("http") || sourceURL.startsWith("https") ) && !cond.apply(uid)){
+      val decodedHost: String = new URL(sourceURL).getHost
+
+      val host: String = regexPattern.findFirstIn(decodedHost)
                                      .get
 
       if(host.startsWith("www")){
-        Record(uid, host.replace("www.", ""))
+        Record(uid.toLong, host.replace("www.", ""))
       }else{
-        Record(uid, host)
+        Record(uid.toLong, host)
       }
     }else{
-      Record(uid, "-")
+      Record(0L, "-")
     }
 
   }
