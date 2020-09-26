@@ -20,6 +20,9 @@ testOptions in Test ++= Seq(
 scalacOptions := Seq("-unchecked", "-feature", "-deprecation", "-encoding", "utf8")
 scalafmtOnCompile := true
 
+fork in Test := true
+javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled")
+
 assemblyJarName in assembly := "data_mart_2.11-1.0.jar"
 
 assemblyMergeStrategy in assembly := {

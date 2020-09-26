@@ -1,15 +1,13 @@
-package com.romanidze.sparky.datamart.processing
+package com.romanidze.sparky.datamart.processing.weblogs
 
 import java.net.{URI, URL}
 
 import com.holdenkarau.spark.testing.{HDFSCluster, SharedSparkContext}
-import com.romanidze.sparky.datamart.processing.weblogs.WebLogsLoader
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.apache.hadoop.fs.Path
-import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class WebLogsLoaderTest extends AnyFlatSpec with Matchers with SharedSparkContext {
 
@@ -42,6 +40,8 @@ class WebLogsLoaderTest extends AnyFlatSpec with Matchers with SharedSparkContex
     logsDF.show(1, 200, vertical = true)
 
     logsDF.count() > 0 shouldBe true
+
+    spark.stop()
 
   }
 
