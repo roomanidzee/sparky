@@ -1,6 +1,7 @@
 package com.romanidze.sparky.datamart.processing.shop
 
 import com.romanidze.sparky.datamart.config.ElasticSearchConfig
+import com.romanidze.sparky.datamart.processing.Utils
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
@@ -30,7 +31,7 @@ class ShopInfoLoader(config: ElasticSearchConfig)(implicit spark: SparkSession) 
     rawDF
       .join(calculatedDF, Seq("uid"), "inner")
       .select(col("uid"), col("action_count"), col("category"))
-      .withColumn("shop_category", concat(lit("shop_"), col("category")))
+      .withColumn("shop_category", Utils.processCategory(col("category"), "shop_"))
       .orderBy(asc("uid"))
 
   }

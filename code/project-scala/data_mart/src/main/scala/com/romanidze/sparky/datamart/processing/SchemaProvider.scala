@@ -90,4 +90,16 @@ object SchemaProvider {
 
   }
 
+  def getClientInfoSchema: StructType = {
+
+    StructType(
+      Seq(
+        StructField("uid", DataTypes.StringType, nullable = true),
+        StructField("gender", DataTypes.StringType, nullable = true),
+        StructField("age", DataTypes.IntegerType, nullable = true)
+      )
+    )
+
+  }
+
 }
