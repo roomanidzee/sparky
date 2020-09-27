@@ -77,4 +77,17 @@ object SchemaProvider {
 
   }
 
+  def getShopAggregatedSchema: StructType = {
+
+    StructType(
+      Seq(
+        StructField("uid", DataTypes.StringType, nullable = true),
+        StructField("action_count", DataTypes.LongType, nullable = false),
+        StructField("category", DataTypes.StringType, nullable = true),
+        StructField("shop_category", DataTypes.StringType, nullable = true)
+      )
+    )
+
+  }
+
 }

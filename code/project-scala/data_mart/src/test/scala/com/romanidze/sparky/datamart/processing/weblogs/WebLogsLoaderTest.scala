@@ -6,7 +6,6 @@ import com.holdenkarau.spark.testing.{HDFSCluster, SharedSparkContext}
 import com.romanidze.sparky.datamart.processing.SchemaProvider
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

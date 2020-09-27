@@ -12,7 +12,7 @@ class WebLogsLoader(implicit spark: SparkSession) {
       .schema(SchemaProvider.getWebLogsSchema)
       .parquet(path)
       .na
-      .drop("all")
+      .drop("all", Seq("uid"))
 
   }
 
