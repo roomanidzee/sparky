@@ -2,8 +2,8 @@ package com.romanidze.sparky.datamart.processing.shop
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.romanidze.sparky.datamart.config.ElasticSearchConfig
+import com.romanidze.sparky.datamart.processing.SchemaProvider
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.Ignore
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -19,7 +19,7 @@ class ShopInfoLoaderTest extends AnyFlatSpec with Matchers with SharedSparkConte
 
     val shopDF: DataFrame = shopInfoLoader.getShopInfoDataFrame
 
-    shopDF.printSchema()
+    shopDF.schema shouldBe SchemaProvider.getShopInfoSchema
 
     spark.stop()
 

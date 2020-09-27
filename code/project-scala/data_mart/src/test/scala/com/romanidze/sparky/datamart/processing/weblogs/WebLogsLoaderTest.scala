@@ -46,6 +46,8 @@ class WebLogsLoaderTest extends AnyWordSpec with Matchers with SharedSparkContex
 
       logsDF.schema shouldBe SchemaProvider.getWebLogsSchema
 
+      spark.stop()
+
     }
 
     "expand dataframe by uid and url" in {
@@ -59,16 +61,10 @@ class WebLogsLoaderTest extends AnyWordSpec with Matchers with SharedSparkContex
 
       changedDF.count() > 0 shouldBe true
 
-      val expectedSchema: StructType = StructType(
-        Seq(
-          StructField("uid", DataTypes.StringType),
-          StructField("url", DataTypes.StringType),
-          StructField("url_count", DataTypes.LongType, nullable = false)
-        )
-      )
-
-      changedDF.schema shouldBe expectedSchema
+      changedDF.schema shouldBe SchemaProvider.getWebLogsAggregatedSchema
       changedDF.show(20, 200, vertical = true)
+
+      spark.stop()
 
     }
 
