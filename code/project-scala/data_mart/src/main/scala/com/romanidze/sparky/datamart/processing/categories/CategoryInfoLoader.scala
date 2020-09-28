@@ -16,6 +16,7 @@ class CategoryInfoLoader(config: PostgreSQLConfig)(implicit spark: SparkSession)
       .format("jdbc")
       .option("url", jdbcURL)
       .option("dbtable", config.source.table)
+      .option("driver", "org.postgresql.Driver")
       .load()
 
   }

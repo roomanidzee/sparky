@@ -10,4 +10,8 @@ object ConfigurationLoader {
     ConfigSource.file(path).load[ApplicationConfig]
   }
 
+  def load: Either[ConfigReaderFailures, ApplicationConfig] = {
+    ConfigSource.default.load[ApplicationConfig]
+  }
+
 }

@@ -12,13 +12,12 @@
 
 ## Сборка
 
+- Положить в src/main/resources файл с конфигурациями. Пример есть в тестах
 - ```docker-compose -f docker/docker-compose.yml up -d && docker logs -f es-indexer```
 - ```sbt assembly```
 
 ## Деплой проекта
 
 ```
-spark-submit --class com.romanidze.sparky.relevantsites.RelevantSitesApp --master yarn --deploy-mode client data_mart_2.11-1.0.jar *config_file*
+spark-submit --class data_mart --master yarn --deploy-mode cluster --driver-memory 4g --executor-memory 4g --conf spark.sql.shuffle.partitions=500 data_mart_2.11-1.0.jar
 ```
-
-- config_file - путь к файлу с конфигурациями
