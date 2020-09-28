@@ -13,7 +13,6 @@
 ## Сборка
 
 - Положить в src/main/resources файл с конфигурациями. Пример есть в тестах
-- ```docker-compose -f docker/docker-compose.yml up -d && docker logs -f es-indexer```
 - ```sbt assembly```
 
 ## Деплой проекта
