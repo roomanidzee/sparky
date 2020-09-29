@@ -1,8 +1,9 @@
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.types.{DataTypes, StructType}
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.catalyst.dsl.expressions.DslSymbol
+import org.apache.spark.sql.{DataFrame, Encoder, Row, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.streaming.DataStreamWriter
+import org.apache.spark.sql.types.DataTypes
 
 object filter extends App{
 
@@ -29,18 +30,13 @@ object filter extends App{
     .options(kafkaParams)
     .load
 
-  val schema = new StructType()
-    .add("event_type", DataTypes.StringType, nullable = true)
-    .add("category", DataTypes.StringType, nullable = true)
-    .add("item_id", DataTypes.StringType, nullable = true)
-    .add("item_price", DataTypes.LongType, nullable = true)
-    .add("uid", DataTypes.StringType, nullable = true)
-    .add("timestamp", DataTypes.LongType, nullable = true)
+  implicit val myObjEncoder: Encoder[String] = org.apache.spark.sql.Encoders.STRING
+  val jsonString = rawDF.select(col("value").cast(DataTypes.StringType)).as[String]
 
-  val rawDataDF: DataFrame = rawDF.select(from_json(col("value").cast("string"), schema))
+  val rawDataDF: DataFrame = spark.read.json(jsonString)
   val rawDataChangedDF: DataFrame =
     rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
-             .withColumn("part_date", col("date"))
+      .withColumn("part_date", col("date"))
 
   val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
   val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
