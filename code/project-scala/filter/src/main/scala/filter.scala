@@ -24,21 +24,26 @@ object filter extends App{
     "maxOffsetsPerTrigger" -> "5000"
   )
 
-  val rawDF: DataFrame = spark.readStream
+  val schema = new StructType()
+    .add("event_type", DataTypes.StringType, nullable = true)
+    .add("category", DataTypes.StringType, nullable = true)
+    .add("item_id", DataTypes.StringType, nullable = true)
+    .add("item_price", DataTypes.LongType, nullable = true)
+    .add("uid", DataTypes.StringType, nullable = true)
+    .add("timestamp", DataTypes.LongType, nullable = true)
+
+  val rawDataDF: DataFrame = spark.readStream
     .format("kafka")
     .options(kafkaParams)
     .load
+    .select(from_json(col("value").cast("string"), schema))
 
-  implicit val myObjEncoder: Encoder[String] = org.apache.spark.sql.Encoders.STRING
-  val jsonString = rawDF.select(col("value").cast(DataTypes.StringType)).as[String]
-
-  val rawDataDF: DataFrame = spark.read.json(jsonString)
   val rawDataChangedDF: DataFrame =
     rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
              .withColumn("part_date", col("date"))
 
-  val buyDataDF: DataFrame = rawDataDF.filter(col("event_type") === "buy")
-  val viewDataDF: DataFrame = rawDataDF.filter(col("event_type") === "view")
+  val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
+  val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
 
   val checkpointBaseDir = "offsetsData"
 
