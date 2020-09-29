@@ -44,8 +44,8 @@ object filter extends App{
     .select("data.*")
 
   val rawDataChangedDF: DataFrame =
-    rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
-             .withColumn("part_date", col("date"))
+    rawDataDF.withColumn("date", to_date(from_unixtime(col("timestamp") / 1000),"yyyyMMdd"))
+             .withColumn("part_date", to_date(from_unixtime(col("timestamp") / 1000),"yyyyMMdd"))
 
   val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
   val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
