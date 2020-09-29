@@ -36,7 +36,8 @@ object filter extends App{
     .format("kafka")
     .options(kafkaParams)
     .load
-    .select(from_json(col("value").cast("string"), schema))
+    .select(from_json(col("value").cast("string"), schema).as("data"))
+    .select("data.*")
 
   val rawDataChangedDF: DataFrame =
     rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
