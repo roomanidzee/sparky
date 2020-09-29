@@ -1,9 +1,8 @@
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.catalyst.dsl.expressions.DslSymbol
+import org.apache.spark.sql.types.{DataTypes, StructType}
 import org.apache.spark.sql.{DataFrame, Encoder, Row, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.DataStreamWriter
-import org.apache.spark.sql.types.DataTypes
+import org.apache.spark.sql.streaming.{DataStreamWriter, StreamingQuery}
 
 object filter extends App{
 
@@ -36,32 +35,29 @@ object filter extends App{
   val rawDataDF: DataFrame = spark.read.json(jsonString)
   val rawDataChangedDF: DataFrame =
     rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
-      .withColumn("part_date", col("date"))
+             .withColumn("part_date", col("date"))
 
-  rawDataChangedDF.createOrReplaceTempView("raw_data_df")
-  val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
+  val buyDataDF: DataFrame = rawDataDF.filter(col("event_type") === "buy")
+  val viewDataDF: DataFrame = rawDataDF.filter(col("event_type") === "view")
 
   val checkpointBaseDir = "offsetsData"
 
-  val buySink: DataStreamWriter[Row] =
-    spark.sql("SELECT * FROM raw_data_df WHERE event_type == 'buy'")
-      .writeStream
-      .format("json")
-      .partitionBy("part_date")
-      .option("checkpointLocation", s"$checkpointBaseDir/buy")
-      .option("path", s"$outputDirPrefix/buy")
+  val buySink: DataStreamWriter[Row] = buyDataDF.writeStream
+    .format("json")
+    .partitionBy("part_date")
+    .option("checkpointLocation", s"$checkpointBaseDir/buy")
+    .option("path", s"$outputDirPrefix/buy")
 
-  val viewSink: DataStreamWriter[Row] =
-    spark.sql("SELECT * FROM raw_data_df WHERE event_type == 'view'")
-      .writeStream
-      .format("json")
-      .partitionBy("part_date")
-      .option("checkpointLocation", s"$checkpointBaseDir/view")
-      .option("path", s"$outputDirPrefix/view")
+  val viewSink: DataStreamWriter[Row] = viewDataDF.writeStream
+    .format("json")
+    .partitionBy("part_date")
+    .option("checkpointLocation", s"$checkpointBaseDir/view")
+    .option("path", s"$outputDirPrefix/view")
 
-  buySink.start()
-  viewSink.start()
+  val buyQuery: StreamingQuery = buySink.start()
+  val viewQuery: StreamingQuery = viewSink.start()
 
-  spark.streams.awaitAnyTermination()
+  buyQuery.awaitTermination()
+  viewQuery.awaitTermination()
 
 }
