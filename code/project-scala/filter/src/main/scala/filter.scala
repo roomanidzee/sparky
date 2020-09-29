@@ -32,11 +32,15 @@ object filter extends App{
     .add("uid", DataTypes.StringType, nullable = true)
     .add("timestamp", DataTypes.LongType, nullable = true)
 
-  val rawDataDF: DataFrame = spark.readStream
+  val rawDF: DataFrame = spark.readStream
     .format("kafka")
     .options(kafkaParams)
     .load
-    .select(from_json(col("value").cast("string"), schema).as("data"))
+
+  val rawStringDF: DataFrame = rawDF.selectExpr("CAST(value AS STRING)")
+
+  val rawDataDF: DataFrame = rawStringDF
+    .select(from_json(col("value"), schema).as("data"))
     .select("data.*")
 
   val rawDataChangedDF: DataFrame =
@@ -63,7 +67,6 @@ object filter extends App{
   val buyQuery: StreamingQuery = buySink.start()
   val viewQuery: StreamingQuery = viewSink.start()
 
-  buyQuery.awaitTermination()
-  viewQuery.awaitTermination()
+  spark.streams.awaitAnyTermination()
 
 }
