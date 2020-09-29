@@ -38,11 +38,12 @@ object filter extends App{
     .add("timestamp", DataTypes.LongType, nullable = true)
 
   val rawDataDF: DataFrame = rawDF.select(from_json(col("value").cast("string"), schema))
-    .withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
-    .withColumn("part_date", col("date"))
+  val rawDataChangedDF: DataFrame =
+    rawDataDF.withColumn("date", to_utc_timestamp(from_unixtime(col("timestamp"),"yyyyMMdd"),"UTC"))
+             .withColumn("part_date", col("date"))
 
-  val buyDataDF: DataFrame = rawDataDF.filter(col("event_type") === "buy")
-  val viewDataDF: DataFrame = rawDataDF.filter(col("event_type") === "view")
+  val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
+  val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
 
   val checkpointBaseDir = "offsetsData"
 
