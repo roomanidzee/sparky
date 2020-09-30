@@ -12,7 +12,14 @@ object filter extends App{
   val sc: SparkContext = spark.sparkContext
 
   val topicName: String = spark.conf.get("spark.filter.topic_name")
-  val offsetType: String = spark.conf.get("spark.filter.offset")
+
+  val inputOffset: String = spark.conf.get("spark.filter.offset")
+
+  val offsetType: String = inputOffset match {
+    case input @ "earliest" => s"$input"
+    case x => s""" { "$topicName": { "0": $x } } """
+  }
+
   val outputDirPrefix: String = spark.conf.get("spark.filter.output_dir_prefix")
 
   val kafkaParams: Map[String, String] = Map(
