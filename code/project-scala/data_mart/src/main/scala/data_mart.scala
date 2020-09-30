@@ -26,10 +26,7 @@ object data_mart extends App {
 
   val cassandraConfig = Map("host" -> "10.0.0.5", "port" -> "9042")
 
-  val esConfig = Map(
-    "address"                -> "10.0.0.5:9200",
-    "es.batch.write.refresh" -> "false",
-  )
+  val esConfig = Map("es.nodes" -> "10.0.0.5:9200", "es.batch.write.refresh" -> "false")
 
   val categoriesDF: DataFrame = spark.read
     .format("jdbc")
