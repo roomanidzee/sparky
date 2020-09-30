@@ -57,11 +57,12 @@ object data_mart extends App {
     .where("uid is not null")
     .cache()
 
-  val logsDF: DataFrame = spark.read
+  val logsRawDF: DataFrame = spark.read
     .json("/labs/laba03/weblogs.json")
     .select(col("uid"), explode(col("visits")).as('visit))
     .select(col("uid"), lower(col("visit.url").as("url")))
-    .drop("visit")
+
+  val logsDF: DataFrame = logsRawDF
     .withColumn("domain", regexp_replace(callUDF("parse_url", col("url"), lit("HOST")), "www.", ""))
     .drop("url")
     .cache()
