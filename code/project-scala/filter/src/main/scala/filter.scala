@@ -49,9 +49,14 @@ object filter extends App{
     .select(from_json(col("value"), schema).as("data"))
     .select("data.*")
 
+  val getData = udf { (timestamp: Long) =>
+    val format = new java.text.SimpleDateFormat("yyyyMMdd")
+    format.format(timestamp)
+  }
+
   val rawDataChangedDF: DataFrame =
-    rawDataDF.withColumn("date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
-      .withColumn("part_date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
+    rawDataDF.withColumn("date", getData(col("timestamp")))
+      .withColumn("part_date", col("date"))
 
   rawDataChangedDF.show(10)
 
