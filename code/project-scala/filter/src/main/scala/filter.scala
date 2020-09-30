@@ -25,7 +25,8 @@ object filter extends App{
   val kafkaParams: Map[String, String] = Map(
     "kafka.bootstrap.servers" -> "spark-master-1:6667",
     "subscribe" -> topicName,
-    "startingOffsets" -> offsetType
+    "startingOffsets" -> offsetType,
+    "failOnDataLoss" -> "false"
   )
 
   val schema = new StructType()
