@@ -60,7 +60,7 @@ object data_mart extends App {
   val logsRawDF: DataFrame = spark.read
     .json("/labs/laba03/weblogs.json")
     .select(col("uid"), explode(col("visits")).as('visit))
-    .select(col("uid"), lower(col("visit.url").as("url")))
+    .select(col("uid"), lower(col("visit.url")).as("url"))
 
   val logsDF: DataFrame = logsRawDF
     .withColumn("domain", regexp_replace(callUDF("parse_url", col("url"), lit("HOST")), "www.", ""))
