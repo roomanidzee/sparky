@@ -7,7 +7,6 @@ object filter extends App{
 
   val spark: SparkSession = SparkSession.builder()
     .appName(" Logs Kafka2Spark (Romanov Andrey)")
-    .config("spark.sql.session.timeZone", "UTC")
     .getOrCreate()
 
   val sc: SparkContext = spark.sparkContext
@@ -19,15 +18,14 @@ object filter extends App{
   val kafkaParams: Map[String, String] = Map(
     "kafka.bootstrap.servers" -> "spark-master-1:6667",
     "subscribe" -> topicName,
-    "startingOffsets" -> offsetType,
-    "maxOffsetsPerTrigger" -> "5000"
+    "startingOffsets" -> offsetType
   )
 
   val schema = new StructType()
     .add("event_type", DataTypes.StringType, nullable = true)
     .add("category", DataTypes.StringType, nullable = true)
     .add("item_id", DataTypes.StringType, nullable = true)
-    .add("item_price", DataTypes.LongType, nullable = true)
+    .add("item_price", DataTypes.IntegerType, nullable = true)
     .add("uid", DataTypes.StringType, nullable = true)
     .add("timestamp", DataTypes.LongType, nullable = true)
 
@@ -43,8 +41,10 @@ object filter extends App{
     .select("data.*")
 
   val rawDataChangedDF: DataFrame =
-    rawDataDF.withColumn("date", to_date(from_unixtime(col("timestamp") / 1000),"yyyyMMdd"))
-             .withColumn("part_date", to_date(from_unixtime(col("timestamp") / 1000),"yyyyMMdd"))
+    rawDataDF.withColumn("date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
+             .withColumn("part_date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
+
+  rawDataChangedDF.show(10)
 
   val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
   val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
