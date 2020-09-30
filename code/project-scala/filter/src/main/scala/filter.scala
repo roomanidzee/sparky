@@ -1,78 +1,23 @@
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.types.{DataTypes, StructType}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-
-object filter extends App{
-
-  val spark: SparkSession = SparkSession.builder()
-    .appName(" Logs Kafka2Spark (Romanov Andrey)")
-    .getOrCreate()
-
-  val sc: SparkContext = spark.sparkContext
-
-  val topicName: String = spark.conf.get("spark.filter.topic_name")
-
-  val inputOffset: String = spark.conf.get("spark.filter.offset")
-
-  val offsetType: String = if (inputOffset == "earliest"){
-    s"earliest"
-  } else{
-    s""" {"$topicName": {"0":$inputOffset}}"""
+import org.apache.spark.sql.Dataset
+object filter {
+  def main(args: Array[String]): Unit = {
+    val spark = SparkSession.builder().getOrCreate()
+    import spark.implicits._
+    val offset = spark.sparkContext.getConf.get("spark.filter.offset")
+    val df = spark.read.format("kafka").option("kafka.bootstrap.servers", "spark-master-1:6667").option("subscribe", spark.sparkContext.getConf.get("spark.filter.topic_name")).option("failOnDataLoss","false").option("startingOffsets",if (offset == "earliest") s"earliest" else s""" {"${spark.sparkContext.getConf.get("spark.filter.topic_name")}": {"0":$offset}}""").load()
+    val json: Dataset[String] = df.select(col("value").cast("string")).as[String]
+    val getData = udf { (timestamp: Long) =>
+      val format = new java.text.SimpleDateFormat("yyyyMMdd")
+      format.format(timestamp)
+    }
+    val parsed = spark.read.json(json).select('category,'event_type,'item_id,'item_price,'timestamp, 'uid, getData('timestamp).as("date")).withColumn("date_rep",'date)
+    parsed.filter(col("event_type") === "view")
+      .write.partitionBy("date_rep").mode("overwrite").json(spark.sparkContext.getConf.get("spark.filter.output_dir_prefix") + "/view/")
+    parsed.filter(col("event_type") === "buy")
+      .write.partitionBy("date_rep").mode("overwrite").json(spark.sparkContext.getConf.get("spark.filter.output_dir_prefix") + "/buy/")
+    spark.stop()
   }
-
-  val outputDirPrefix: String = spark.conf.get("spark.filter.output_dir_prefix")
-
-  val kafkaParams: Map[String, String] = Map(
-    "kafka.bootstrap.servers" -> "spark-master-1:6667",
-    "subscribe" -> topicName,
-    "startingOffsets" -> offsetType,
-    "failOnDataLoss" -> "false"
-  )
-
-  val schema = new StructType()
-    .add("event_type", DataTypes.StringType, nullable = true)
-    .add("category", DataTypes.StringType, nullable = true)
-    .add("item_id", DataTypes.StringType, nullable = true)
-    .add("item_price", DataTypes.IntegerType, nullable = true)
-    .add("uid", DataTypes.StringType, nullable = true)
-    .add("timestamp", DataTypes.LongType, nullable = true)
-
-  val rawDF: DataFrame = spark.read
-    .format("kafka")
-    .options(kafkaParams)
-    .load
-
-  val rawStringDF: DataFrame = rawDF.selectExpr("CAST(value AS STRING)")
-
-  val rawDataDF: DataFrame = rawStringDF
-    .select(from_json(col("value"), schema).as("data"))
-    .select("data.*")
-
-  val getData = udf { (timestamp: Long) =>
-    val format = new java.text.SimpleDateFormat("yyyyMMdd")
-    format.format(timestamp)
-  }
-
-  val rawDataChangedDF: DataFrame =
-    rawDataDF.withColumn("date", getData(col("timestamp")))
-      .withColumn("part_date", col("date"))
-
-  rawDataChangedDF.show(10)
-
-  val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
-  val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
-
-  buyDataDF.write
-    .format("json")
-    .partitionBy("part_date")
-    .json(outputDirPrefix + "/buy/")
-
-  viewDataDF.write
-    .format("json")
-    .partitionBy("part_date")
-    .json(outputDirPrefix + "/view/")
-
-  spark.stop()
-
 }
