@@ -31,7 +31,7 @@ object filter extends App{
     .add("uid", DataTypes.StringType, nullable = true)
     .add("timestamp", DataTypes.LongType, nullable = true)
 
-  val rawDF: DataFrame = spark.readStream
+  val rawDF: DataFrame = spark.read
     .format("kafka")
     .options(kafkaParams)
     .load
