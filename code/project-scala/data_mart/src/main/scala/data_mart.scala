@@ -1,4 +1,3 @@
-
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
@@ -7,33 +6,33 @@ object data_mart extends App {
   implicit lazy val spark: SparkSession = SparkSession
     .builder()
     .appName("DataMart App (Romanov Andrey)")
+    .config("spark.cassandra.connection.host", cassandraConfig("host"))
+    .config("spark.cassandra.connection.port", cassandraConfig("port"))
+    .config("spark.cassandra.output.consistency.level", "ANY")
+    .config("spark.cassandra.input.consistency.level", "ONE")
     .getOrCreate()
 
   val postgresSrcConfig = Map(
-    "url" -> "jdbc:postgresql://10.0.0.5:5432/labdata",
-    "user" -> "andrey_romanov",
+    "url"      -> "jdbc:postgresql://10.0.0.5:5432/labdata",
+    "user"     -> "andrey_romanov",
     "password" -> "3ytIi9s2"
   )
 
   val postgresSinkConfig = Map(
-    "url" -> "jdbc:postgresql://10.0.0.5:5432/andrey_romanov",
-    "user" -> "andrey_romanov",
+    "url"      -> "jdbc:postgresql://10.0.0.5:5432/andrey_romanov",
+    "user"     -> "andrey_romanov",
     "password" -> "3ytIi9s2"
   )
 
-  val cassandraConfig = Map(
-    "host" -> "10.0.0.5",
-    "port" -> "9042"
-  )
+  val cassandraConfig = Map("host" -> "10.0.0.5", "port" -> "9042")
 
   val esConfig = Map(
-    "address" -> "10.0.0.5:9200",
+    "address"                -> "10.0.0.5:9200",
     "es.batch.write.refresh" -> "false",
-    "es.nodes.wan.only" -> "true"
+    "es.nodes.wan.only"      -> "true"
   )
 
-  val categoriesDF: DataFrame = spark
-    .read
+  val categoriesDF: DataFrame = spark.read
     .format("jdbc")
     .option("url", postgresSrcConfig("url"))
     .option("user", postgresSrcConfig("user"))
@@ -41,43 +40,33 @@ object data_mart extends App {
     .option("driver", "org.postgresql.Driver")
     .option("query", "select * from domain_cats")
     .load
-    .withColumn("web_category",concat(lit("web_"),col("category")))
+    .withColumn("web_category", concat(lit("web_"), col("category")))
     .cache()
 
-  spark.conf.set("spark.cassandra.connection.host", cassandraConfig("host"))
-  spark.conf.set("spark.cassandra.connection.port", cassandraConfig("port"))
-  spark.conf.set("spark.cassandra.output.consistency.level", "ANY")
-  spark.conf.set("spark.cassandra.input.consistency.level", "ONE")
-
-  val clientsDF: DataFrame = spark
-    .read
+  val clientsDF: DataFrame = spark.read
     .format("org.apache.spark.sql.cassandra")
-    .options(Map("table" -> "clients","keyspace" -> "labdata"))
+    .options(Map("table" -> "clients", "keyspace" -> "labdata"))
     .load()
     .cache()
 
-  val shopDF: DataFrame = spark
-    .read
+  val shopDF: DataFrame = spark.read
     .format("es")
     .options(esConfig)
     .load("visits*")
     .withColumn(
       "shop_category",
-      concat(lit("shop_"), lower(regexp_replace(col("category"), "[\\s-]+", "_"))))
+      concat(lit("shop_"), lower(regexp_replace(col("category"), "[\\s-]+", "_")))
+    )
     .select(col("shop_category"), col("uid"))
     .where("uid is not null")
     .cache()
 
-  val logsDF: DataFrame = spark
-    .read
+  val logsDF: DataFrame = spark.read
     .json("/labs/laba03/weblogs.json")
     .select(col("uid"), explode(col("visits")).as('visit))
     .select(col("uid"), lower(col("visit.url").as("url")))
     .drop("visit")
-    .withColumn(
-      "domain",
-      regexp_replace(callUDF("parse_url",col("url"),lit("HOST")),"www.", "")
-    )
+    .withColumn("domain", regexp_replace(callUDF("parse_url", col("url"), lit("HOST")), "www.", ""))
     .drop("url")
     .cache()
 
@@ -107,7 +96,8 @@ object data_mart extends App {
         .when(col("age") >= 45 && col("age") <= 54, "45-54")
         .when(col("age") >= 55, ">=55")
         .otherwise(0)
-    ).select(col("uid"), col("gender"), col("age_cat"))
+    )
+    .select(col("uid"), col("gender"), col("age_cat"))
 
   val resultDF: DataFrame = clientsAggregated
     .join(shopAggregated, Seq("uid"), "left")
