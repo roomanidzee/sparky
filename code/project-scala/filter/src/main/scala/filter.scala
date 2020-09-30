@@ -15,9 +15,10 @@ object filter extends App{
 
   val inputOffset: String = spark.conf.get("spark.filter.offset")
 
-  val offsetType: String = inputOffset match {
-    case input @ "earliest" => s"$input"
-    case x => s""" { "$topicName": { "0": $x } } """
+  val offsetType: String = if (inputOffset == "earliest"){
+    s"earliest"
+  } else{
+    s""" {"$topicName": {"0":$inputOffset}}"""
   }
 
   val outputDirPrefix: String = spark.conf.get("spark.filter.output_dir_prefix")
@@ -50,7 +51,7 @@ object filter extends App{
 
   val rawDataChangedDF: DataFrame =
     rawDataDF.withColumn("date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
-             .withColumn("part_date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
+      .withColumn("part_date", from_unixtime(col("timestamp") / 1000, "yyyyMMdd"))
 
   rawDataChangedDF.show(10)
 
