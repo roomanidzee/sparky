@@ -29,7 +29,6 @@ object data_mart extends App {
   val esConfig = Map(
     "address"                -> "10.0.0.5:9200",
     "es.batch.write.refresh" -> "false",
-    "es.nodes.wan.only"      -> "true"
   )
 
   val categoriesDF: DataFrame = spark.read
