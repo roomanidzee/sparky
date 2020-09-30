@@ -70,17 +70,17 @@ object data_mart extends App {
   val logsAggregated: DataFrame = logsDF
     .join(categoriesDF, Seq("domain"), "left")
     .groupBy(col("uid"))
-    .pivot("category")
+    .pivot("web_category")
     .agg(count(col("uid")))
     .drop("null")
-    .drop("category")
+    .drop("web_category")
     .orderBy(col("uid"))
 
   val shopAggregated: DataFrame = shopDF
     .groupBy(col("uid"))
-    .pivot("category")
+    .pivot("shop_category")
     .agg(count(col("uid")))
-    .drop("category")
+    .drop("shop_category")
     .filter(col("uid").isNotNull)
     .orderBy(col("uid"))
 
