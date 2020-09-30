@@ -61,12 +61,12 @@ object filter extends App{
   buyDataDF.write
     .format("json")
     .partitionBy("part_date")
-    .json(s"$outputDirPrefix/buy")
+    .json(outputDirPrefix + "/buy/")
 
   viewDataDF.write
     .format("json")
     .partitionBy("part_date")
-    .json(s"$outputDirPrefix/view")
+    .json(outputDirPrefix + "/view/")
 
   spark.stop()
 
