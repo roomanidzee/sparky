@@ -1,8 +1,7 @@
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.types.{DataTypes, StructType}
-import org.apache.spark.sql.{DataFrame, Encoder, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.{DataStreamWriter, StreamingQuery}
 
 object filter extends App{
 
@@ -50,23 +49,16 @@ object filter extends App{
   val buyDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "buy")
   val viewDataDF: DataFrame = rawDataChangedDF.filter(col("event_type") === "view")
 
-  val checkpointBaseDir = "offsetsData"
-
-  val buySink: DataStreamWriter[Row] = buyDataDF.writeStream
+  buyDataDF.write
     .format("json")
     .partitionBy("part_date")
-    .option("checkpointLocation", s"$checkpointBaseDir/buy")
-    .option("path", s"$outputDirPrefix/buy")
+    .json(s"$outputDirPrefix/buy")
 
-  val viewSink: DataStreamWriter[Row] = viewDataDF.writeStream
+  viewDataDF.write
     .format("json")
     .partitionBy("part_date")
-    .option("checkpointLocation", s"$checkpointBaseDir/view")
-    .option("path", s"$outputDirPrefix/view")
+    .json(s"$outputDirPrefix/view")
 
-  val buyQuery: StreamingQuery = buySink.start()
-  val viewQuery: StreamingQuery = viewSink.start()
-
-  spark.streams.awaitAnyTermination()
+  spark.stop()
 
 }
