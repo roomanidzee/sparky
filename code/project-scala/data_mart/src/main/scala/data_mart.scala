@@ -50,7 +50,7 @@ object data_mart extends App {
     .cache()
 
   val shopDF: DataFrame = spark.read
-    .format("es")
+    .format("org.elasticsearch.spark.sql")
     .options(esConfig)
     .load("visits*")
     .withColumn(
