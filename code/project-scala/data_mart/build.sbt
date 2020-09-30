@@ -10,7 +10,7 @@ resolvers ++= Seq(
   Resolver.bintrayRepo("sbt-assembly", "maven")
 )
 
-libraryDependencies ++= Dependencies.mainDeps ++ Dependencies.testDeps
+libraryDependencies ++= Dependencies.mainDeps
 
 testOptions in Test ++= Seq(
   Tests.Argument(TestFrameworks.ScalaTest, "-oT"),
