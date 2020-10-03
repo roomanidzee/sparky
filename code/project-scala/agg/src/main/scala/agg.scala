@@ -31,7 +31,8 @@ object agg extends App {
       Map(
         "kafka.bootstrap.servers" -> "spark-master-1:6667",
         "subscribe"               -> sourceTopic,
-        "maxOffsetsPerTrigger"    -> "5000"
+        "maxOffsetsPerTrigger"    -> "5000",
+        "startingOffsets"         -> "earliest"
       )
     )
     .load
