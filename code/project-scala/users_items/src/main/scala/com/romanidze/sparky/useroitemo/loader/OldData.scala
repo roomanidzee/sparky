@@ -1,7 +1,7 @@
 package com.romanidze.sparky.useroitemo.loader
 
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 object OldData {
 
@@ -26,7 +26,6 @@ object OldData {
         .groupBy(col("uid"))
         .pivot("view_column")
         .agg(count(col("uid")))
-        .drop("null")
         .na
         .fill(0)
         .drop(col("view_column"))
@@ -37,7 +36,6 @@ object OldData {
         .groupBy(col("uid"))
         .pivot("buy_column")
         .agg(count(col("uid")))
-        .drop("null")
         .na
         .fill(0)
         .drop(col("buy_column"))
@@ -51,7 +49,13 @@ object OldData {
       .groupBy(col("uid"))
       .sum()
 
-    newMatrix.write
+    val renamedColumns: Array[Column] =
+      newMatrix.columns
+        .map(name => col(name).as(name.replaceAll("^sum\\(", "").replaceAll("\\)$", "")))
+
+    newMatrix
+      .select(renamedColumns: _*)
+      .write
       .parquet(s"${outputDir}/${maxDateValue}")
 
     viewDF.unpersist()

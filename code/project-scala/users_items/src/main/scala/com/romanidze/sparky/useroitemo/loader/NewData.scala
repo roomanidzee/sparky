@@ -21,7 +21,6 @@ object NewData {
         .groupBy(col("uid"))
         .pivot("view_column")
         .agg(count(col("uid")))
-        .drop("null")
         .na
         .fill(0)
         .drop(col("view_column"))
@@ -32,7 +31,6 @@ object NewData {
         .groupBy(col("uid"))
         .pivot("buy_column")
         .agg(count(col("uid")))
-        .drop("null")
         .na
         .fill(0)
         .drop(col("buy_column"))
