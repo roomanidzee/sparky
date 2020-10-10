@@ -10,7 +10,7 @@ object users_items extends App {
       .appName("Users and Items matrix (Romanov Andrey)")
       .getOrCreate()
 
-  implicit val sc: SparkContext = spark.sparkContext
+  val sc: SparkContext = spark.sparkContext
   val conf: SparkConf = sc.getConf
 
   val inputDir: String = conf.get("spark.users_items.input_dir")
