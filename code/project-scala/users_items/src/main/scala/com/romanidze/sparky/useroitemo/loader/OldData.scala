@@ -37,14 +37,23 @@ object OldData {
     val changedOldMatrix: DataFrame = oldMatrix.selectExpr("uid", stackExpression)
     val finalOldMatrix: DataFrame = changedOldMatrix.select(col("uid"), col("changed_column"))
 
-    val joinedDF: DataFrame =
+    val unionDF: DataFrame =
       viewChangedDF
-        .join(buyChangedDF, Seq("uid"), "left")
-        .join(finalOldMatrix, Seq("uid"), "left")
-        .na
-        .fill(0)
+        .union(buyChangedDF)
+        .union(finalOldMatrix)
 
-    joinedDF.write
+    val finalDF: DataFrame =
+      unionDF
+        .groupBy(col("uid"))
+        .pivot("changed_column")
+        .count()
+        .drop("changed_column")
+
+    val possibleNullColumns = finalDF.columns.filter(_ != "uid")
+
+    finalDF.na
+      .fill(0, possibleNullColumns)
+      .write
       .parquet(s"${outputDir}/${maxDateValue}")
 
     oldMatrix.unpersist()
