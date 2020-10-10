@@ -10,11 +10,6 @@ object OldData {
     val viewDF: DataFrame = Utils.getJsonData(inputDir, "view")
     val buyDF: DataFrame = Utils.getJsonData(inputDir, "buy")
 
-    val oldMatrix: DataFrame =
-      spark.read
-        .parquet(s"${outputDir}/users-items")
-        .cache()
-
     val viewDateValue: String = Utils.getMaxDateValue(viewDF)
     val buyDateValue: String = Utils.getMaxDateValue(buyDF)
 
@@ -43,18 +38,7 @@ object OldData {
         .na
         .fill(0)
 
-    val newMatrix = oldMatrix
-      .union(joinedDF)
-      .groupBy(col("uid"))
-      .sum()
-
-    val renamedColumns: Array[Column] =
-      newMatrix.columns
-        .map(name => col(name).as(name.replaceAll("^sum\\(", "").replaceAll("\\)$", "")))
-
-    newMatrix
-      .select(renamedColumns: _*)
-      .write
+    joinedDF.write
       .parquet(s"${outputDir}/${maxDateValue}")
 
     viewDF.unpersist()
