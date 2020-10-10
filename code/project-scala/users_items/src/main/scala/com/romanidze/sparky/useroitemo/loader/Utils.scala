@@ -29,7 +29,6 @@ object Utils {
       .withColumn("utc_date", getTimeValue(col("timestamp")))
       .withColumn(pivotColumn, concat(lit(pivotPrefix), getNormalizedValue(col("item_id"))))
       .select(col("uid"), col("utc_date"), col(pivotColumn))
-      .where(col("uid").isNotNull)
       .cache()
 
   }

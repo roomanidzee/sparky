@@ -47,12 +47,16 @@ object OldData {
         .join(buyAggregatedDF, Seq("uid"), "inner")
         .drop(col("uid"))
 
-    val newMatrix = oldMatrix.union(joinedDF)
-                             .groupBy(col("uid"))
-                             .sum()
+    val newMatrix = oldMatrix
+      .union(joinedDF)
+      .groupBy(col("uid"))
+      .sum()
 
     newMatrix.write
       .parquet(s"${outputDir}/${maxDateValue}")
+
+    viewDF.unpersist()
+    buyDF.unpersist()
 
   }
 
