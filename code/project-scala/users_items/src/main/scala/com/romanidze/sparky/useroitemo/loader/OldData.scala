@@ -17,46 +17,37 @@ object OldData {
 
     val viewDateValue: String = Utils.getMaxDateValue(viewDF)
     val buyDateValue: String = Utils.getMaxDateValue(buyDF)
-
     val maxDateValue: String = Utils.getMaxValue(viewDateValue, buyDateValue)
 
-    val viewAggregatedDF: DataFrame =
+    val viewChangedDF: DataFrame =
       viewDF
-        .drop(col("utc_date"))
-        .groupBy(col("uid"))
-        .pivot("view_column")
-        .count()
-        .drop("view_column")
+        .withColumn("changed_column", col("view_column"))
+        .drop("utc_date", "view_column")
 
-    val buyAggregatedDF: DataFrame =
+    val buyChangedDF: DataFrame =
       buyDF
-        .drop(col("utc_date"))
-        .groupBy(col("uid"))
-        .pivot("buy_column")
-        .count()
-        .drop("buy_column")
+        .withColumn("changed_column", col("buy_column"))
+        .drop("utc_date", "buy_column")
+
+    val oldColumns: Seq[String] = oldMatrix.columns.toList.filter(_ != "uid")
+    val columnsForStack: String = oldColumns.map(s => "\"" + s + "\", " + s).mkString(", ")
+    val stackExpression: String =
+      "stack(" + oldColumns.length.toString + ", " + columnsForStack + ") as (changed_column, value)"
+
+    val changedOldMatrix: DataFrame = oldMatrix.selectExpr("uid", stackExpression)
+    val finalOldMatrix: DataFrame = changedOldMatrix.select(col("uid"), col("changed_column"))
 
     val joinedDF: DataFrame =
-      viewAggregatedDF
-        .join(buyAggregatedDF, Seq("uid"), "left")
-        .drop(col("uid"))
+      viewChangedDF
+        .join(buyChangedDF, Seq("uid"), "left")
+        .join(finalOldMatrix, Seq("uid"), "left")
         .na
         .fill(0)
 
-    val newMatrix = oldMatrix
-      .union(joinedDF)
-      .groupBy(col("uid"))
-      .sum()
+    joinedDF.write
+      .parquet(s"${outputDir}/${maxDateValue}")
 
-    val renamedColumns: Array[Column] =
-      newMatrix.columns
-        .map(name => col(name).as(name.replaceAll("^sum\\(", "").replaceAll("\\)$", "")))
-
-    newMatrix
-      .select(renamedColumns: _*)
-      .write
-      .parquet(s"${outputDir}/20200430")
-
+    oldMatrix.unpersist()
     viewDF.unpersist()
     buyDF.unpersist()
 
