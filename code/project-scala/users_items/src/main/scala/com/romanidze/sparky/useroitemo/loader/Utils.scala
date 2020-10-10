@@ -28,7 +28,8 @@ object Utils {
       .json(s"${inputDir}/${dataType}")
       .withColumn("utc_date", getTimeValue(col("timestamp")))
       .withColumn(pivotColumn, concat(lit(pivotPrefix), getNormalizedValue(col("item_id"))))
-      .na.drop("any")
+      .na
+      .drop("any")
       .select(col("uid"), col("utc_date"), col(pivotColumn))
       .cache()
 

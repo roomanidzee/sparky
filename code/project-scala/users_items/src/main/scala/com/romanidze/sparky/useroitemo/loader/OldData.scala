@@ -12,7 +12,7 @@ object OldData {
 
     val oldMatrix: DataFrame =
       spark.read
-        .parquet(s"${outputDir}")
+        .parquet(s"${outputDir}/users-items")
         .cache()
 
     val viewDateValue: String = Utils.getMaxDateValue(viewDF)
