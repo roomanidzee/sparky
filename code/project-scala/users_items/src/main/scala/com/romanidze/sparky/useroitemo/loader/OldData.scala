@@ -25,20 +25,24 @@ object OldData {
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("view_column")
-        .agg(count(when(col("uid").isNotNull, true)))
-        .drop(col("view_column"))
+        .agg(count(col("uid")))
+        .drop("null", "view_column")
+        .na.fill(0)
 
     val buyAggregatedDF: DataFrame =
       buyDF
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("buy_column")
-        .agg(count(when(col("uid").isNotNull, true)))
-        .drop(col("buy_column"))
+        .agg(count(col("uid")))
+        .drop("null", "buy_column")
+        .na.fill(0)
 
     val joinedDF: DataFrame =
       viewAggregatedDF
         .join(buyAggregatedDF, Seq("uid"), "left")
+        .drop(col("uid"))
+        .drop("null")
 
     val newMatrix = oldMatrix
       .union(joinedDF)
