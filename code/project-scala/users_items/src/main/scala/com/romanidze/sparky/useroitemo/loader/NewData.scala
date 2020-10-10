@@ -22,8 +22,6 @@ object NewData {
         .pivot("view_column")
         .agg(count(col("uid")))
         .drop("view_column")
-        .na
-        .fill(0)
 
     val buyAggregatedDF: DataFrame =
       buyDF
@@ -31,14 +29,13 @@ object NewData {
         .groupBy(col("uid"))
         .pivot("buy_column")
         .agg(count(col("uid")))
-        .drop("buy_column")
-        .na
-        .fill(0)
 
     val joinedDF: DataFrame =
-      buyAggregatedDF
-        .join(viewAggregatedDF, Seq("uid"), "left")
+      viewAggregatedDF
+        .join(buyAggregatedDF, Seq("uid"), "left")
         .drop(col("uid"))
+        .na
+        .fill(0)
 
     joinedDF.write
       .parquet(s"${outputDir}/${maxDateValue}")
