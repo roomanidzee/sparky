@@ -20,7 +20,7 @@ object NewData {
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("view_column")
-        .agg(count(col("uid")))
+        .count()
         .drop("view_column")
 
     val buyAggregatedDF: DataFrame =
@@ -28,12 +28,12 @@ object NewData {
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("buy_column")
-        .agg(count(col("uid")))
+        .count()
+        .drop("buy_column")
 
     val joinedDF: DataFrame =
       viewAggregatedDF
         .join(buyAggregatedDF, Seq("uid"), "left")
-        .drop(col("uid"))
         .na
         .fill(0)
 
