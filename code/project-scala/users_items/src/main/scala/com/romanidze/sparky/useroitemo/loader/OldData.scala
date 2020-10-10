@@ -44,8 +44,7 @@ object OldData {
 
     val joinedDF: DataFrame =
       viewAggregatedDF
-        .join(buyAggregatedDF, Seq("uid"), "inner")
-        .drop(col("uid"))
+        .join(buyAggregatedDF, Seq("uid"), "left")
 
     val newMatrix = oldMatrix
       .union(joinedDF)

@@ -39,7 +39,7 @@ object NewData {
 
     val joinedDF: DataFrame =
       viewAggregatedDF
-        .join(buyAggregatedDF, Seq("uid"), "inner")
+        .join(buyAggregatedDF, Seq("uid"), "left")
         .drop(col("uid"))
 
     joinedDF.write
