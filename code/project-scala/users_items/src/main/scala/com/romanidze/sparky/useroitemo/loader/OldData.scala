@@ -26,6 +26,7 @@ object OldData {
         .groupBy(col("uid"))
         .pivot("view_column")
         .agg(count(col("uid")))
+        .drop("null")
         .na
         .fill(0)
         .drop(col("view_column"))
@@ -36,6 +37,7 @@ object OldData {
         .groupBy(col("uid"))
         .pivot("buy_column")
         .agg(count(col("uid")))
+        .drop("null")
         .na
         .fill(0)
         .drop(col("buy_column"))
@@ -45,7 +47,11 @@ object OldData {
         .join(buyAggregatedDF, Seq("uid"), "inner")
         .drop(col("uid"))
 
-    joinedDF.write
+    val newMatrix = oldMatrix.union(joinedDF)
+                             .groupBy(col("uid"))
+                             .sum()
+
+    newMatrix.write
       .parquet(s"${outputDir}/${maxDateValue}")
 
   }
