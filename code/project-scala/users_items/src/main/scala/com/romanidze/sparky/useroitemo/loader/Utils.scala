@@ -19,15 +19,13 @@ object Utils {
     lower(regexp_replace(idColumn, "[\\s-]+", "_"))
   }
 
-  def getParquetData(inputDir: String, dataType: String)(
-    implicit spark: SparkSession
-  ): DataFrame = {
+  def getJsonData(inputDir: String, dataType: String)(implicit spark: SparkSession): DataFrame = {
 
     val pivotColumn: String = s"${dataType}_column"
     val pivotPrefix: String = s"${dataType}_"
 
     spark.read
-      .parquet(s"${inputDir}/${dataType}")
+      .json(s"${inputDir}/${dataType}")
       .withColumn("utc_date", getTimeValue(col("timestamp")))
       .withColumn(pivotColumn, concat(lit(pivotPrefix), getNormalizedValue(col("item_id"))))
       .select(col("uid"), col("utc_date"), col(pivotColumn))

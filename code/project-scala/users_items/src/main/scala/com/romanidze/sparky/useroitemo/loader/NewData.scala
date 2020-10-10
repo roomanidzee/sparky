@@ -7,8 +7,8 @@ object NewData {
 
   def load(inputDir: String, outputDir: String)(implicit spark: SparkSession): Unit = {
 
-    val viewDF: DataFrame = Utils.getParquetData(inputDir, "view")
-    val buyDF: DataFrame = Utils.getParquetData(inputDir, "buy")
+    val viewDF: DataFrame = Utils.getJsonData(inputDir, "view")
+    val buyDF: DataFrame = Utils.getJsonData(inputDir, "buy")
 
     val viewDateValue: String = Utils.getMaxDateValue(viewDF)
     val buyDateValue: String = Utils.getMaxDateValue(buyDF)
