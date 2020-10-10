@@ -20,9 +20,7 @@ object NewData {
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("view_column")
-        .agg(count(col("uid")))
-        .na
-        .fill(0)
+        .agg(count(when(col("uid").isNotNull, true)))
         .drop(col("view_column"))
 
     val buyAggregatedDF: DataFrame =
@@ -30,9 +28,7 @@ object NewData {
         .drop(col("utc_date"))
         .groupBy(col("uid"))
         .pivot("buy_column")
-        .agg(count(col("uid")))
-        .na
-        .fill(0)
+        .agg(count(when(col("uid").isNotNull, true)))
         .drop(col("buy_column"))
 
     val joinedDF: DataFrame =
