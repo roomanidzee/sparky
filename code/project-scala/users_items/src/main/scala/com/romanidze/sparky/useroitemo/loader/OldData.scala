@@ -23,11 +23,13 @@ object OldData {
       viewDF
         .withColumn("changed_column", col("view_column"))
         .drop("utc_date", "view_column")
+        .select(col("uid"), col("changed_column"))
 
     val buyChangedDF: DataFrame =
       buyDF
         .withColumn("changed_column", col("buy_column"))
         .drop("utc_date", "buy_column")
+        .select(col("uid"), col("changed_column"))
 
     val oldColumns: Seq[String] = oldMatrix.columns.toList.filter(_ != "uid")
     val columnsForStack: String = oldColumns.map(s => "\"" + s + "\", " + s).mkString(", ")
