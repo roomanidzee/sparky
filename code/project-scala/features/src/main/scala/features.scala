@@ -1,3 +1,15 @@
+import com.romanidze.sparky.features.FeatureMatrixJob
+import org.apache.spark.sql.SparkSession
+
 object features extends App {
-  println("hallo lab6")
+
+  implicit val spark: SparkSession =
+    SparkSession
+      .builder()
+      .appName("Feature Matrix (Romanov Andrey)")
+      .getOrCreate()
+
+  val job = new FeatureMatrixJob()
+  job.start()
+
 }
