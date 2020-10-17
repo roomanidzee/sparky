@@ -23,6 +23,9 @@ class FeatureMatrixJob(implicit val spark: SparkSession) {
 
     finalDF.write.parquet("/user/andrey.romanov/features")
 
+    matrixOriginDF.unpersist()
+    logsOriginDF.unpersist()
+
   }
 
 }

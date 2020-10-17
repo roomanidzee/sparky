@@ -12,7 +12,7 @@ class TimeProcessing(implicit spark: SparkSession) {
   private val hourLiterals: Seq[Int] = 0 to 23
 
   private def getCondition(columnName: String, aliasColumn: String, filterValue: Int): Column = {
-    when(col(columnName) === filterValue, true).as(aliasColumn)
+    count(when(col(columnName) === filterValue, true).as(aliasColumn))
   }
 
   def getTimedDF(logsDF: DataFrame): DataFrame = {
@@ -37,17 +37,29 @@ class TimeProcessing(implicit spark: SparkSession) {
     ).cast(DataTypes.DoubleType) / count(col("uid")).cast(DataTypes.DoubleType))
       .as("web_fraction_evening_hours")
 
-    logsDF
+   val rawDF: DataFrame =  logsDF
       .withColumn("day_value", Utils.getDayValue(col("timestamp")))
       .withColumn("hour_value", Utils.getHourValue(col("timestamp")))
+
+   val dayAndHourDF: DataFrame = rawDF
       .groupBy(col("uid"))
       .agg(
-        dayColumns.head,
-        (
-          dayColumns.drop(1) ++ hourColumns ++ Seq(workHoursCondition) ++ Seq(eveningHoursCondition)
-        ): _*
+        workHoursCondition, eveningHoursCondition
       )
-      .drop("timestamp", "domain")
+      .select(col("uid"), col("web_fraction_work_hours"), col("web_fraction_evening_hours"))
+
+    val dayDF: DataFrame =
+      rawDF.groupBy(col("uid"))
+        .pivot("day_value")
+        .agg(dayColumns.head, dayColumns.drop(1) : _*)
+
+    val hourDF: DataFrame =
+      rawDF.groupBy(col("uid"))
+        .pivot("hour_value")
+        .agg(hourColumns.head, hourColumns.drop(1): _*)
+
+    dayDF.join(hourDF, Seq("uid"), "inner")
+         .join(dayAndHourDF, Seq("uid"), "inner")
 
   }
 
