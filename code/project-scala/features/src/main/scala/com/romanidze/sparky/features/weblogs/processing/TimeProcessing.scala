@@ -12,7 +12,7 @@ class TimeProcessing(implicit spark: SparkSession) {
   private val hourLiterals: Seq[Int] = 0 to 23
 
   private def getCondition(columnName: String, aliasColumn: String, filterValue: Int): Column = {
-    count(when(col(columnName) === filterValue, true).as(aliasColumn))
+    count(when(col(columnName) === filterValue, true)).as(aliasColumn)
   }
 
   def getTimedDF(logsDF: DataFrame): DataFrame = {
