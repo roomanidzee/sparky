@@ -1,4 +1,4 @@
-package com.romanidze.sparky.features
+package com.romanidze.sparky.features.weblogs
 
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date, TimeZone}
