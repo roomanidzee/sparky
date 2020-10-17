@@ -9,8 +9,8 @@ object MatrixDataProcessor {
   ): DataFrame = {
 
     matrixDF
-      .join(domainFeaturesDF, Seq("uid"), "left")
-      .join(logsTimeDF, Seq("uid"), "left")
+      .join(domainFeaturesDF, Seq("uid"), "inner")
+      .join(logsTimeDF, Seq("uid"), "inner")
 
   }
 
