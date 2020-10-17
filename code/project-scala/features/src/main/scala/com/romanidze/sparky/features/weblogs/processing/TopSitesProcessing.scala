@@ -10,7 +10,8 @@ class TopSitesProcessing(implicit spark: SparkSession) {
     rawDF
       .drop("uid")
       .groupBy(col("domain"))
-      .agg(count(col("domain")).alias("domain_count"))
+      .count()
+      .as("domain_count")
       .select(col("domain"), col("domain_count"))
       .orderBy(col("domain_count").desc)
       .limit(1000)
