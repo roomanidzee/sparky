@@ -18,6 +18,7 @@ object LogsDataLoader {
         regexp_replace(callUDF("parse_url", col("url"), lit("HOST")), "www.", "")
       )
       .drop("url")
+      .filter(when(col("domain").isNotNull, true))
       .cache()
 
   }
