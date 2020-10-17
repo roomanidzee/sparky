@@ -19,12 +19,11 @@ class TimeProcessing(implicit spark: SparkSession) {
     ).cast(DataTypes.DoubleType) / count(col("uid")).cast(DataTypes.DoubleType))
       .as("web_fraction_evening_hours")
 
-    val daysLiteral: Seq[String] = Seq(
-      "Fri", "Wed", "Thu", "Sat", "Tue", "Mon", "Sun"
-    )
+    val daysLiteral: Seq[String] = Seq("Fri", "Wed", "Thu", "Sat", "Tue", "Mon", "Sun")
 
     val hourRange: Seq[Column] = (0 to 23).map(elem => col(s"$elem").as(s"web_hour_$elem"))
-    val dayRange: Seq[Column] = daysLiteral.map(elem => col(s"$elem").as(s"web_day_${elem.toLowerCase}"))
+    val dayRange: Seq[Column] =
+      daysLiteral.map(elem => col(s"$elem").as(s"web_day_${elem.toLowerCase}"))
 
     val hourDF: DataFrame =
       logsDF

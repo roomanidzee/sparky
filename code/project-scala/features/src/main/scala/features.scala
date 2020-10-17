@@ -11,5 +11,6 @@ object features extends App {
 
   val job = new FeatureMatrixJob()
   job.start()
+  spark.stop()
 
 }
