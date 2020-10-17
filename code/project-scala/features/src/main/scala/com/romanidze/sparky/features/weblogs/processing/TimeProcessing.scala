@@ -37,29 +37,30 @@ class TimeProcessing(implicit spark: SparkSession) {
     ).cast(DataTypes.DoubleType) / count(col("uid")).cast(DataTypes.DoubleType))
       .as("web_fraction_evening_hours")
 
-   val rawDF: DataFrame =  logsDF
+    val rawDF: DataFrame = logsDF
       .withColumn("day_value", Utils.getDayValue(col("timestamp")))
       .withColumn("hour_value", Utils.getHourValue(col("timestamp")))
 
-   val dayAndHourDF: DataFrame = rawDF
+    val dayAndHourDF: DataFrame = rawDF
       .groupBy(col("uid"))
-      .agg(
-        workHoursCondition, eveningHoursCondition
-      )
+      .agg(workHoursCondition, eveningHoursCondition)
       .select(col("uid"), col("web_fraction_work_hours"), col("web_fraction_evening_hours"))
 
     val dayDF: DataFrame =
-      rawDF.groupBy(col("uid"))
+      rawDF
+        .groupBy(col("uid"))
         .pivot("day_value")
-        .agg(dayColumns.head, dayColumns.drop(1) : _*)
+        .agg(dayColumns.head, dayColumns.drop(1): _*)
 
     val hourDF: DataFrame =
-      rawDF.groupBy(col("uid"))
+      rawDF
+        .groupBy(col("uid"))
         .pivot("hour_value")
         .agg(hourColumns.head, hourColumns.drop(1): _*)
 
-    dayDF.join(hourDF, Seq("uid"), "inner")
-         .join(dayAndHourDF, Seq("uid"), "inner")
+    dayDF
+      .join(hourDF, Seq("uid"), "inner")
+      .join(dayAndHourDF, Seq("uid"), "inner")
 
   }
 
