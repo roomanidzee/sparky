@@ -8,6 +8,8 @@ object MatrixDataLoader {
 
     spark.read
       .parquet(path)
+      .na
+      .drop("any")
       .cache()
 
   }

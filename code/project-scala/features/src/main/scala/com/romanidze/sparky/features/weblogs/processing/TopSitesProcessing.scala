@@ -12,6 +12,8 @@ class TopSitesProcessing(implicit spark: SparkSession) {
       .groupBy(col("domain"))
       .count()
       .orderBy(col("count").desc)
+      .na
+      .drop("any")
       .limit(1000)
       .orderBy(col("domain").asc)
       .select(col("domain"))

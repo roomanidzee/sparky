@@ -15,7 +15,9 @@ object LogsDataLoader {
     logsRawDF
       .withColumn("host", lower(callUDF("parse_url", col("url"), lit("HOST"))))
       .withColumn("domain", regexp_replace(col("host"), "www.", ""))
-      .drop("url")
+      .select(col("uid"), col("timestamp"), col("domain"))
+      .na
+      .drop("any")
       .cache()
 
   }

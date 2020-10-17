@@ -16,7 +16,7 @@ class FeatureMatrixJob(implicit val spark: SparkSession) {
     val logsTimeProcessor = new TimeProcessing()
     val logsSitesProcessor = new TopSitesProcessing()
 
-    val logsTimedDF: DataFrame = logsTimeProcessor.getTimedDF(logsOriginDF)
+    val logsTimedDF: (DataFrame, DataFrame) = logsTimeProcessor.getTimedDF(logsOriginDF)
     val logsTopsSitesDF: DataFrame = logsSitesProcessor.getSitesDF(logsOriginDF)
 
     val finalDF = MatrixDataProcessor.getJoinedDF(matrixOriginDF, logsTopsSitesDF, logsTimedDF)
