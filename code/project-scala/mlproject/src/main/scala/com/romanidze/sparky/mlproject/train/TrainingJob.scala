@@ -1,6 +1,7 @@
 package com.romanidze.sparky.mlproject.train
 
-import com.romanidze.sparky.mlproject.train.weblogs.{DataLoader, PipelinePreparing}
+import com.romanidze.sparky.mlproject.shared.PipelinePreparing
+import com.romanidze.sparky.mlproject.train.weblogs.DataLoader
 import org.apache.spark.ml.{Pipeline, PipelineModel}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 

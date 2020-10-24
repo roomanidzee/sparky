@@ -1,4 +1,4 @@
-package com.romanidze.sparky.mlproject.train.weblogs
+package com.romanidze.sparky.mlproject.shared
 
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
