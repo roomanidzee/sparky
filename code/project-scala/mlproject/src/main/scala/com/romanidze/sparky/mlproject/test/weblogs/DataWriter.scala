@@ -26,7 +26,7 @@ class DataWriter(implicit spark: SparkSession) {
           "checkpointLocation"      -> checkpointPath
         )
       )
-      .outputMode(OutputMode.Append())
+      .outputMode(OutputMode.Update())
       .start()
 
   }
