@@ -7,15 +7,33 @@ import sys
 
 from sklearn.linear_model import LogisticRegression
 
-rows = [] #here we keep input data to Dataframe constructor
+rows = []  # here we keep input data to Dataframe constructor
+
+
+def parse_wrapped_array(input_val: str):
+    changed_value = input_val.replace(
+        "WrappedArray(", ""
+    ).replace(")", "")
+
+    return changed_value.replace(" ", "").split(",")
+
 
 # iterate over standard input
 for line in sys.stdin:
-  #parse line into a dict: {"column1": value1, ...}
-  line_dict = ...
-  rows.append(line_dict)
+    # parse line into a dict: {"column1": value1, ...}
 
-#initialize a dataframe from the list
+    changed_value: str = line.replace("[", "").replace("]", "")
+
+    values_list = changed_value.split(",")
+
+    line_dict = {
+      'uid': values_list[0],
+      'gender_age': values_list[1],
+      'domains': parse_wrapped_array(values_list[2])
+    }
+    rows.append(line_dict)
+
+# initialize a dataframe from the list
 df = pd.DataFrame(rows)
 
 feature_columns = ["domains"]

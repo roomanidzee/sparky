@@ -6,7 +6,7 @@ import org.apache.spark.ml.{Estimator, Model}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.util._
 import org.apache.spark.sql.{DataFrame, Dataset}
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{DataTypes, StructType}
 
 class SklearnEstimator(override val uid: String)
     extends Estimator[SklearnEstimatorModel]
@@ -14,17 +14,16 @@ class SklearnEstimator(override val uid: String)
   def this() = this(Identifiable.randomUID("SklearnEstimator"))
 
   override def fit(dataset: Dataset[_]): SklearnEstimatorModel = {
-    ???
-    // Внутри данного метода необходимо вызывать обучение модели при помощи train.py. Используйте для этого rdd.pipe().
-    // Файл train.py будет возвращать сериализованную модель в формате base64.
-    // Данный метод fit возвращает SklearnEstimatorModel, поэтому инициализируйте данный объект, где в качестве параметра будет приниматься модель в формате base64.
+
+    val modelValue: String = dataset.rdd.pipe("python3 train.py").collect()(0)
+    new SklearnEstimatorModel(uid, modelValue)
   }
 
   override def copy(extra: ParamMap): SklearnEstimator = defaultCopy(extra)
 
   override def transformSchema(schema: StructType): StructType = {
     // Определение выходной схемы данных
-    ???
+    new StructType().add("model", DataTypes.StringType)
   }
 
 }

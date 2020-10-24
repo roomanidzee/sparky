@@ -16,7 +16,7 @@ class TrainingJob(implicit spark: SparkSession) {
     val logsRawDF: DataFrame = dataLoader.load(datasetPath)
     val logsMLDF: DataFrame = dataLoader.convertDF(logsRawDF)
 
-    val pipeline: Pipeline = PipelinePreparing.getPipeline(logsMLDF)
+    val pipeline: Pipeline = PipelinePreparing.getPipeline
 
     val model: PipelineModel = pipeline.fit(logsMLDF)
 
