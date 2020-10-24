@@ -20,6 +20,6 @@ spark-submit --conf spark.mlproject.model_save_path=/user/name.surname/spark-pip
              --conf spark.mlproject.output_topic=name_surname_lab04b_out \
              --conf spark.mlproject.checkpoint_path=/user/name.surname/checkpoints
              --class test \ 
-             --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.5 \
+             --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 \
              .target/scala-2.11/mlproject_2.11-1.0.jar 
 ```
