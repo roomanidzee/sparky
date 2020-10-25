@@ -1,6 +1,5 @@
 #!/opt/anaconda/envs/bd9/bin/python3
 
-import numpy as np
 import pandas as pd
 import pickle
 import sys
