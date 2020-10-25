@@ -22,7 +22,6 @@ class DataWriter {
 
     sourceDF
       .select(col("uid"), col("predicted_label").as("gender_age"), col("date"))
-      .toJSON
       .write
       .format("org.elasticsearch.spark.sql")
       .options(esConfig)
