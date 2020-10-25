@@ -19,7 +19,7 @@ class SklearnEstimator(override val uid: String)
 
   override def fit(dataset: Dataset[_]): SklearnEstimatorModel = {
 
-    val modelValue: String = dataset.rdd.pipe("python3 train.py").collect()(0)
+    val modelValue: String = dataset.rdd.pipe("/opt/anaconda/envs/bd9/bin/python3 train.py").collect()(0)
     new SklearnEstimatorModel(uid, modelValue)
   }
 
@@ -54,7 +54,7 @@ class SklearnEstimatorModel(override val uid: String, val model: String)
 
     sparkSession.sparkContext.addFile("lab07.model")
 
-    val scriptResult: RDD[String] = dataset.rdd.pipe("python3 test.py")
+    val scriptResult: RDD[String] = dataset.rdd.pipe("/opt/anaconda/envs/bd9/bin/python3 test.py")
     scriptResult.toDF()
 
     // Внутри данного метода необходимо вызывать test.py для получения предсказаний. Используйте для этого rdd.pipe().
