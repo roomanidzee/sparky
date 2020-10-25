@@ -26,7 +26,7 @@ class DataWriter {
       .write
       .format("org.elasticsearch.spark.sql")
       .options(esConfig)
-      .save(targetIndex)
+      .save(s"${targetIndex}/_doc")
 
   }
 
