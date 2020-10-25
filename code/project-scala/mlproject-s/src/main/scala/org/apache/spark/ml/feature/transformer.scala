@@ -15,11 +15,8 @@ class Url2DomainTransformer(override val uid: String)
 
   override def transform(dataset: Dataset[_]): DataFrame = {
 
-    val logsRawDF: DataFrame = dataset.select(
-      col("uid"),
-      col("gender_age"),
-      lower(col("visit.url")).as("url")
-    )
+    val logsRawDF: DataFrame =
+      dataset.select(col("uid"), col("gender_age"), lower(col("visit.url")).as("url"))
 
     val logsDF: DataFrame = logsRawDF
       .withColumn("host", lower(callUDF("parse_url", col("url"), lit("HOST"))))

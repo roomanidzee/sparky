@@ -5,8 +5,12 @@ import org.apache.spark.ml.feature.SklearnEstimatorModel.SklearnEstimatorModelWr
 import org.apache.spark.ml.{Estimator, Model}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.util._
-import org.apache.spark.sql.{DataFrame, Dataset}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.sql.types.{DataTypes, StructType}
+
+import java.io.File
+import java.io.PrintWriter
 
 class SklearnEstimator(override val uid: String)
     extends Estimator[SklearnEstimatorModel]
@@ -40,7 +44,19 @@ class SklearnEstimatorModel(override val uid: String, val model: String)
   override def copy(extra: ParamMap): SklearnEstimatorModel = defaultCopy(extra)
 
   override def transform(dataset: Dataset[_]): DataFrame = {
-    ???
+
+    val pw = new PrintWriter(new File("lab07.model"))
+    pw.println(model)
+    pw.close()
+
+    val sparkSession: SparkSession = SparkSession.active
+    import sparkSession.implicits._
+
+    sparkSession.sparkContext.addFile("lab07.model")
+
+    val scriptResult: RDD[String] = dataset.rdd.pipe("python3 test.py")
+    scriptResult.toDF()
+
     // Внутри данного метода необходимо вызывать test.py для получения предсказаний. Используйте для этого rdd.pipe().
     // Внутри test.py используется обученная модель, которая хранится в переменной `model`. Поэтому перед вызовом rdd.pipe() необходимо записать данное значение в файл и добавить его в spark-сессию при помощи sparkSession.sparkContext.addFile.
     // Данный метод возвращает DataFrame, поэтому полученные предсказания необходимо корректно преобразовать в DF.
@@ -48,7 +64,7 @@ class SklearnEstimatorModel(override val uid: String, val model: String)
   }
 
   override def transformSchema(schema: StructType): StructType = {
-    ???
+    new StructType().add("model", DataTypes.StringType)
     // Определение выходной схемы данных
   }
 

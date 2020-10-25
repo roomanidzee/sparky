@@ -9,6 +9,7 @@ sbt package
 ```
 spark-submit --conf spark.mlproject.dataset_path=/labs/laba07/laba07.json \
              --conf spark.mlproject.model_save_path=/user/name.surname/spark-pipeline-s \
+             --driver-memory 4G --executor-memory 4G \
              --class train_s .target/scala-2.11/mlproject-s_2.11-1.0.jar 
 ```
 
@@ -20,6 +21,7 @@ spark-submit --conf spark.mlproject.model_save_path=/user/name.surname/spark-pip
              --conf spark.mlproject.output_topic=name_surname_lab04b_out \
              --conf spark.mlproject.checkpoint_path=/user/name.surname/checkpoints \
              --class test_s \ 
+             --driver-memory 4G --executor-memory 4G \
              --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 \
              .target/scala-2.11/mlproject-s_2.11-1.0.jar 
 ```

@@ -13,8 +13,7 @@ class TrainingJob(implicit spark: SparkSession) {
     val modelSavePath: String = spark.conf.get("spark.mlproject.model_save_path")
 
     val dataLoader = new DataLoader()
-    val logsRawDF: DataFrame = dataLoader.load(datasetPath)
-    val logsMLDF: DataFrame = dataLoader.convertDF(logsRawDF)
+    val logsMLDF: DataFrame = dataLoader.load(datasetPath)
 
     val pipeline: Pipeline = PipelinePreparing.getPipeline
 
