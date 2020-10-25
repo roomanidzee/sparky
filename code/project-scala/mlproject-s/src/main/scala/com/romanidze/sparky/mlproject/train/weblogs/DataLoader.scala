@@ -10,7 +10,6 @@ class DataLoader(implicit spark: SparkSession) {
     spark.read
       .json(datasetPath)
       .select(col("uid"), col("gender_age"), explode(col("visits")).as("visit"))
-      .select(col("uid"), col("gender_age"), lower(col("visit.url")).as("url"))
       .cache()
 
   }
