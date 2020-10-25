@@ -19,7 +19,8 @@ class SklearnEstimator(override val uid: String)
 
   override def fit(dataset: Dataset[_]): SklearnEstimatorModel = {
 
-    val modelValue: String = dataset.rdd.pipe("/opt/anaconda/envs/bd9/bin/python3 train.py").collect()(0)
+    val modelValue: String =
+      dataset.rdd.pipe("/opt/anaconda/envs/bd9/bin/python3 train.py").collect()(0)
     new SklearnEstimatorModel(uid, modelValue)
   }
 
